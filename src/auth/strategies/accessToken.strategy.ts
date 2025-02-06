@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, ExtractJwt } from 'passport-jwt';
+import { StrategyEnum } from "./strategy.enum";
 
 interface JwtPayload {
     id: string;
@@ -9,7 +10,7 @@ interface JwtPayload {
 }
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, StrategyEnum.JWT) {
 
     constructor(configService: ConfigService) {
         super({
