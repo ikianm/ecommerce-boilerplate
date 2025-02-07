@@ -4,6 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { StrategyEnum } from "./strategy.enum";
+import IJwtPayload from "./jwtPayload.interface";
 
 
 @Injectable()
@@ -17,7 +18,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, StrategyEnu
         });
     }
 
-    validate(req: Request, payload: any) {
+    validate(req: Request, payload: IJwtPayload) {
         const refreshToken = req.get('Authorization')?.replace('Bearer', '').trim();
         return { ...payload, refreshToken };
     }

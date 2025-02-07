@@ -3,11 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { StrategyEnum } from "./strategy.enum";
+import IJwtPayload from "./jwtPayload.interface";
 
-interface JwtPayload {
-    id: string;
-    email: string;
-}
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, StrategyEnum.JWT) {
@@ -19,7 +16,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, StrategyEnum
         });
     }
 
-    validate(payload: JwtPayload) { // if JWT is valid, this function gets called with decoded JWT as its parameter
+    validate(payload: IJwtPayload) { // if JWT is valid, this function gets called with decoded JWT as its parameter
         return payload;
     }
 

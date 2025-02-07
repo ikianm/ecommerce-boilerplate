@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { CreateUserDto } from "../common/dtos/create-user.dto";
 import * as argon2 from 'argon2';
 import { AuthDto } from "./dtos/auth.dto";
+import { UserRole } from "../common/enums/userRole.enum";
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
         const hashedPassword = await argon2.hash(createUserDto.password);
         const newUser = await this.usersApiService.create({ ...createUserDto, password: hashedPassword });
 
-        const tokens = await this.getTokens(newUser.id, newUser.email);
+        const tokens = await this.getTokens(newUser.id, newUser.email, newUser.role);
         await this.updateRefreshToken(newUser.id, tokens.refreshToken);
 
         return tokens;
@@ -35,7 +36,7 @@ export class AuthService {
         const passwordMatches = await argon2.verify(user.password, authDto.password);
         if (!passwordMatches) throw new BadRequestException('Incorrect password');
 
-        const tokens = await this.getTokens(user.id, user.email);
+        const tokens = await this.getTokens(user.id, user.email, user.role);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
@@ -52,7 +53,7 @@ export class AuthService {
         const refreshTokenMatches = await argon2.verify(user.refreshToken, refreshToken);
         if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
 
-        const tokens = await this.getTokens(user.id, user.email);
+        const tokens = await this.getTokens(user.id, user.email, user.role);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
@@ -63,14 +64,14 @@ export class AuthService {
         await this.usersApiService.update(id, { refreshToken: hashedRefreshToken });
     }
 
-    async getTokens(id: number, email: string) {
+    async getTokens(id: number, email: string, role: UserRole) {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(
-                { id, email },
+                { id, email, role },
                 { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1h' }
             ),
             this.jwtService.signAsync(
-                { id, email },
+                { id, email, role },
                 { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '7d' }
             )
         ]);
