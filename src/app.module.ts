@@ -6,7 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/user.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 
 @Module({
   imports: [
@@ -44,6 +45,10 @@ import { APP_PIPE } from '@nestjs/core';
       useValue: new ValidationPipe({
         forbidNonWhitelisted: true
       })
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
     }
   ],
 })
