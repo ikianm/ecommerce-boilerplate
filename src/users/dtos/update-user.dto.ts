@@ -1,4 +1,5 @@
-import { IsEmail, IsString, MinLength, MaxLength, IsStrongPassword, IsOptional } from "class-validator";
+import { IsEmail, IsString, MinLength, MaxLength, IsStrongPassword, IsOptional, IsEnum } from "class-validator";
+import { UserRole } from "../../common/enums/userRole.enum";
 
 export class UpdateUserDto {
 
@@ -19,5 +20,5 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     refreshToken?: string | null;
-    
+
 }
