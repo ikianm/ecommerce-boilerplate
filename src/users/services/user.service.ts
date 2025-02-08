@@ -1,41 +1,47 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { UsersRepository } from "../user.repository";
 import { User } from "../user.entity";
 import { UpdateUserDto } from "../dtos/update-user.dto";
 import { UpdateUserRoleDto } from "../dtos/update-user-role.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 
 @Injectable()
 export class UsersService {
 
-    constructor(private readonly usersRepository: UsersRepository) { }
+    constructor(
+        @InjectRepository(User)
+        private readonly usersRepository: Repository<User>
+    ) { }
 
     async findAll(): Promise<User[]> {
-        return await this.usersRepository.findAll();
+        return await this.usersRepository.find();
     }
 
     async findOne(id: number): Promise<User> {
-        const user = await this.usersRepository.findById(id);
+        const user = await this.usersRepository.findOneBy({ id });
         if (!user) throw new BadRequestException(`No user found with id ${id}`);
         return user;
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-        const user = await this.usersRepository.findById(id);
+        const user = await this.usersRepository.findOneBy({ id });
         if (!user) throw new BadRequestException(`No user found with id ${id}`);
-        return await this.usersRepository.update(user, updateUserDto);
+        Object.assign(user, updateUserDto);
+        return await this.usersRepository.save(user);
     }
 
     async changeUserRole(id: number, updateUserRoleDto: UpdateUserRoleDto): Promise<User> {
-        const user = await this.usersRepository.findById(id);
+        const user = await this.usersRepository.findOneBy({ id });
         if (!user) throw new BadRequestException(`No user found with id ${id}`);
-        return await this.usersRepository.updateRole(user, updateUserRoleDto);
+        user.role = updateUserRoleDto.role;
+        return await this.usersRepository.save(user);
     }
 
     async delete(id: number): Promise<User> {
-        const user = await this.usersRepository.findById(id);
+        const user = await this.usersRepository.findOneBy({ id });
         if (!user) throw new BadRequestException(`No user found with id ${id}`);
-        return await this.usersRepository.delete(user);
+        return await this.usersRepository.remove(user);
     }
 
 }
