@@ -6,7 +6,7 @@ import { UpdateUserDto } from "./dtos/update-user.dto";
 import { UpdateUserRoleDto } from "./dtos/update-user-role.dto";
 import { Request } from "express";
 
-
+@UseGuards(AccessTokenGuard)
 @Controller('users')
 export class UsersController {
 
@@ -14,52 +14,49 @@ export class UsersController {
         private readonly usersService: UsersService
     ) { }
 
-    @UseGuards(AccessTokenGuard)
     @Get('me')
     findMe(@Req() req: Request) {
         if (!req.user) throw new UnauthorizedException('User is not logged in');
         return this.usersService.findOne(req.user.id);
     }
 
-    @UseGuards(AccessTokenGuard)
     @Put('me')
     updateMe(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
         if (!req.user) throw new UnauthorizedException('User is not logged in');
         return this.usersService.update(req.user.id, updateUserDto);
     }
 
-    @UseGuards(AccessTokenGuard)
     @Delete('deleteAccount')
     deleteAccount(@Req() req: Request) {
         if (!req.user) throw new UnauthorizedException('User is not logged in');
         return this.usersService.delete(req.user.id);
     }
 
-    @UseGuards(AccessTokenGuard, AdminGuard)
+    @UseGuards(AdminGuard)
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(parseInt(id));
     }
 
-    @UseGuards(AccessTokenGuard, AdminGuard)
+    @UseGuards(AdminGuard)
     @Get()
     findAll() {
         return this.usersService.findAll();
     }
 
-    @UseGuards(AccessTokenGuard, AdminGuard)
+    @UseGuards(AdminGuard)
     @Put(':id')
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
         return this.usersService.update(parseInt(id), updateUserDto);
     }
 
-    @UseGuards(AccessTokenGuard, AdminGuard)
+    @UseGuards(AdminGuard)
     @Patch(':id')
     changeRole(@Param('id') id: string, @Body() changeUserRoleDto: UpdateUserRoleDto) {
         return this.usersService.changeUserRole(parseInt(id), changeUserRoleDto);
     }
 
-    @UseGuards(AccessTokenGuard, AdminGuard)
+    @UseGuards(AdminGuard)
     @Delete(':id')
     delete(@Param('id') id: string) {
         return this.usersService.delete(parseInt(id));
