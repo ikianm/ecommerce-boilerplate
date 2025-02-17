@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
 import { ProductImage } from "./productImage.entity";
+import { Category } from "../../categories/category.entity";
 
 
 @Entity()
@@ -19,6 +20,9 @@ export class Product {
 
     @Column()
     stockQuantity: number;
+
+    @ManyToOne(() => Category)
+    category: Category;
 
     @OneToMany(() => ProductImage, (productImage) => productImage.product)
     images: ProductImage[];
