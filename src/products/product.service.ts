@@ -26,6 +26,9 @@ export class ProductsService {
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
         const { name, description, price, stockQuantity } = createProductDto;
 
+        const duplicateProductName = await this.productsRepository.findOneBy({ name });
+        if (duplicateProductName) throw new BadRequestException(`product with name ${name} already exists`);
+
         const product = new Product();
         Object.assign(product, {
             name,
