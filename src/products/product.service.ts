@@ -26,7 +26,7 @@ export class ProductsService {
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
         const { name, description, price, stockQuantity } = createProductDto;
 
-        const duplicateProductName = await this.productsRepository.findOneBy({ name });
+        const duplicateProductName = await this.productsRepository.existsBy({ name });
         if (duplicateProductName) throw new BadRequestException(`product with name ${name} already exists`);
 
         const product = new Product();
@@ -63,6 +63,12 @@ export class ProductsService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+
+        if (updateProductDto.name) {
+            const duplicateProductName = await this.productsRepository.existsBy({ name: updateProductDto.name });
+            if (duplicateProductName) throw new BadRequestException(`product with name ${updateProductDto.name} already exists`);
+        }
+
         const product = await this.findById(id);
         Object.assign(product, updateProductDto);
         return await this.productsRepository.save(product);
