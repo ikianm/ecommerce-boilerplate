@@ -11,7 +11,7 @@ export class ProductImage {
     @Column()
     path: string;
 
-    @ManyToOne(() => Product, (product) => product.images)
+    @ManyToOne(() => Product, (product) => product.images, { onDelete: 'CASCADE' })
     product: Product;
 
     @CreateDateColumn({ type: 'timestamp' })

@@ -1,9 +1,10 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { CreateProductDto } from "./dtos/create-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm";
 import { ProductImage } from "./entities/productImage.entity";
+import { UpdateProductDto } from "./dtos/update-product.dto";
 
 
 @Injectable()
@@ -16,6 +17,12 @@ export class ProductsService {
         private readonly productsImageRepository: Repository<ProductImage>
     ) { }
 
+    async findById(id: number): Promise<Product> {
+        const product = await this.productsRepository.findOneBy({ id });
+        if (!product) throw new BadRequestException(`no product found by id ${id}`);
+        return product;
+    }
+
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
         const { name, description, price, stockQuantity } = createProductDto;
 
@@ -26,7 +33,6 @@ export class ProductsService {
             price: parseInt(price),
             stockQuantity: parseInt(stockQuantity)
         });
-
 
         const savedProduct = await this.productsRepository.save(product);
 
@@ -51,6 +57,17 @@ export class ProductsService {
         });
 
         return productWithImages;
+    }
+
+    async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+        const product = await this.findById(id);
+        Object.assign(product, updateProductDto);
+        return await this.productsRepository.save(product);
+    }
+
+    async remove(id: number): Promise<Product> {
+        const product = await this.findById(id);
+        return await this.productsRepository.remove(product);
     }
 
 
