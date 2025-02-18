@@ -5,6 +5,7 @@ import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm";
 import { ProductImage } from "./entities/productImage.entity";
 import { UpdateProductDto } from "./dtos/update-product.dto";
+import { CategoriesApiService } from "../categories/services/categoryApi.service";
 
 
 @Injectable()
@@ -14,7 +15,8 @@ export class ProductsService {
         @InjectRepository(Product)
         private readonly productsRepository: Repository<Product>,
         @InjectRepository(ProductImage)
-        private readonly productsImageRepository: Repository<ProductImage>
+        private readonly productsImageRepository: Repository<ProductImage>,
+        private readonly categoriesApiService: CategoriesApiService
     ) { }
 
     async findById(id: number): Promise<Product> {
@@ -24,17 +26,20 @@ export class ProductsService {
     }
 
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
-        const { name, description, price, stockQuantity } = createProductDto;
+        const { name, description, price, stockQuantity, categoryId } = createProductDto;
 
         const duplicateProductName = await this.productsRepository.existsBy({ name });
         if (duplicateProductName) throw new BadRequestException(`product with name ${name} already exists`);
+
+        const category = await this.categoriesApiService.findById(parseInt(categoryId));
 
         const product = new Product();
         Object.assign(product, {
             name,
             description,
             price: parseInt(price),
-            stockQuantity: parseInt(stockQuantity)
+            stockQuantity: parseInt(stockQuantity),
+            category
         });
 
         const savedProduct = await this.productsRepository.save(product);
@@ -63,14 +68,26 @@ export class ProductsService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
-
-        if (updateProductDto.name) {
-            const duplicateProductName = await this.productsRepository.existsBy({ name: updateProductDto.name });
-            if (duplicateProductName) throw new BadRequestException(`product with name ${updateProductDto.name} already exists`);
-        }
+        const { name, price, description, stockQuantity, categoryId } = updateProductDto;
 
         const product = await this.findById(id);
-        Object.assign(product, updateProductDto);
+
+        if (name) {
+            const duplicateProductName = await this.productsRepository.existsBy({ name });
+            if (duplicateProductName) throw new BadRequestException(`product with name ${name} already exists`);
+
+            product.name = name;
+        }
+
+        if (categoryId) {
+            const category = await this.categoriesApiService.findById(parseInt(categoryId));
+            product.category = category;
+        }
+
+        product.price = price ? parseInt(price) : product.price;
+        product.stockQuantity = stockQuantity ? parseInt(stockQuantity) : product.stockQuantity;
+        product.description = description ? description : product.description;
+
         return await this.productsRepository.save(product);
     }
 

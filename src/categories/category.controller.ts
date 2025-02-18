@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { CreateCategoryDto } from "./dtos/create-category.dto";
-import { CategoriesService } from "./category.service";
+import { CategoriesService } from "./services/category.service";
 import { UpdateCategoryDto } from "./dtos/update-category.dto";
 import { AccessTokenGuard } from "../common/guards/accessToken.guard";
 import { AdminGuard } from "../common/guards/admin.guard";
