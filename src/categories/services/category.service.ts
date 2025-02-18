@@ -47,4 +47,8 @@ export class CategoriesService {
         return await this.categoriesRepository.remove(category);
     }
 
+    async findAll(): Promise<Category[]> {
+        return await this.categoriesRepository.find();
+    }
+
 }
