@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { ProductImage } from "./entities/productImage.entity";
 import { UpdateProductDto } from "./dtos/update-product.dto";
 import { CategoriesApiService } from "../categories/services/categoryApi.service";
+import { ProductQueryDto } from "./dtos/product-query.dto";
 
 
 @Injectable()
@@ -18,6 +19,23 @@ export class ProductsService {
         private readonly productsImageRepository: Repository<ProductImage>,
         private readonly categoriesApiService: CategoriesApiService
     ) { }
+
+    async findAll(productQueryDto: ProductQueryDto): Promise<Product[]> {
+        const { page, limit, filter, sortOrder } = productQueryDto;
+
+        const products = this.productsRepository
+            .createQueryBuilder('product')
+            .skip((page - 1) * limit)
+            .take(limit);
+
+            if (filter) products.where('product.name LIKE :filter', { filter: `%${filter}%` });
+            if (sortOrder) products.orderBy('product.name' ,sortOrder);
+
+        return products
+            .leftJoinAndSelect('product.images', 'productImage')
+            .leftJoinAndSelect('product.category', 'category')
+            .getMany();
+    }
 
     async findById(id: number): Promise<Product> {
         const product = await this.productsRepository.findOneBy({ id });
@@ -60,7 +78,8 @@ export class ProductsService {
                 id: savedProduct.id
             },
             relations: {
-                images: true
+                images: true,
+                category: true
             }
         });
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, Put, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ProductsService } from "./product.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { CreateProductDto } from "./dtos/create-product.dto";
@@ -6,6 +6,7 @@ import { multerOptions } from "./multer/multerConfig";
 import { AccessTokenGuard } from "../common/guards/accessToken.guard";
 import { AdminGuard } from "../common/guards/admin.guard";
 import { UpdateProductDto } from "./dtos/update-product.dto";
+import { ProductQueryDto } from "./dtos/product-query.dto";
 
 
 @Controller('products')
@@ -32,6 +33,17 @@ export class ProductsController {
         return this.productsService.remove(parseInt(id));
     }
 
-    
+    @Get()
+    findAll(@Query() productQueryDto: ProductQueryDto) {
+        return this.productsService.findAll(productQueryDto);
+    }
+
+    @Get(':id')
+    findById(@Param('id') id: string) {
+        return this.productsService.findById(parseInt(id));
+    }
+
+
+
 
 }

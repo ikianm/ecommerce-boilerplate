@@ -6,7 +6,7 @@ import { AccessTokenGuard } from "../common/guards/accessToken.guard";
 import { AdminGuard } from "../common/guards/admin.guard";
 
 
-@Controller('category')
+@Controller('categories')
 export class CategoriesController {
 
     constructor(private readonly categoriesService: CategoriesService) { }
