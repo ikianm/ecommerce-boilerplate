@@ -16,20 +16,17 @@ export class UsersController {
 
     @Get('me')
     findMe(@Req() req: Request) {
-        if (!req.user) throw new UnauthorizedException('User is not logged in');
-        return this.usersService.findOne(req.user.id);
+        return this.usersService.findOne(req.user!.id);
     }
 
     @Put('me')
     updateMe(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-        if (!req.user) throw new UnauthorizedException('User is not logged in');
-        return this.usersService.update(req.user.id, updateUserDto);
+        return this.usersService.update(req.user!.id, updateUserDto);
     }
 
     @Delete('deleteAccount')
     deleteAccount(@Req() req: Request) {
-        if (!req.user) throw new UnauthorizedException('User is not logged in');
-        return this.usersService.delete(req.user.id);
+        return this.usersService.delete(req.user!.id);
     }
 
     @UseGuards(AdminGuard)
