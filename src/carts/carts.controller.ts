@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { AccessTokenGuard } from "../common/guards/accessToken.guard";
 import { CartsService } from "./services/carts.service";
 import { Request } from "express";
@@ -14,6 +14,9 @@ export class CartsController {
         return this.cartsService.findUsersCart(req.user!.id);
     }
 
-
+    @Post(':productId')
+    addToCart(@Param('productId') productId: string, @Req() req: Request) {
+        return this.cartsService.addToCart(req.user!.id, parseInt(productId));
+    }
 
 }

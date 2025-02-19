@@ -2,7 +2,6 @@ import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, On
 import { User } from "../users/user.entity";
 import { Product } from "../products/entities/product.entity";
 
-
 @Entity()
 export class Cart {
 

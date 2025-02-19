@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
-import { CreateProductDto } from "./dtos/create-product.dto";
+import { CreateProductDto } from "../dtos/create-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Product } from "./entities/product.entity";
+import { Product } from "../entities/product.entity";
 import { Repository } from "typeorm";
-import { ProductImage } from "./entities/productImage.entity";
-import { UpdateProductDto } from "./dtos/update-product.dto";
-import { CategoriesApiService } from "../categories/services/categoryApi.service";
-import { ProductQueryDto } from "./dtos/product-query.dto";
+import { ProductImage } from "../entities/productImage.entity";
+import { UpdateProductDto } from "../dtos/update-product.dto";
+import { CategoriesApiService } from "../../categories/services/categoryApi.service";
+import { ProductQueryDto } from "../dtos/product-query.dto";
 
 
 @Injectable()
@@ -60,6 +60,7 @@ export class ProductsService {
         return products;
     }
 
+    //TODO - if product exists, increase quantity, else, create new one
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
         const { name, description, price, stockQuantity, categoryId } = createProductDto;
 
