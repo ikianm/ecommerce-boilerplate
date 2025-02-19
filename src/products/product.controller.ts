@@ -43,7 +43,10 @@ export class ProductsController {
         return this.productsService.findById(parseInt(id));
     }
 
-
+    @Get('byCategory/:category')
+    findByCategory(@Param('category') category: string) {
+        return this.productsService.findByCategory(category);
+    }
 
 
 }

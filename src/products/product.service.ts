@@ -28,8 +28,8 @@ export class ProductsService {
             .skip((page - 1) * limit)
             .take(limit);
 
-            if (filter) products.where('product.name LIKE :filter', { filter: `%${filter}%` });
-            if (sortOrder) products.orderBy('product.name' ,sortOrder);
+        if (filter) products.where('product.name LIKE :filter', { filter: `%${filter}%` });
+        if (sortOrder) products.orderBy('product.name', sortOrder);
 
         return products
             .leftJoinAndSelect('product.images', 'productImage')
@@ -41,6 +41,23 @@ export class ProductsService {
         const product = await this.productsRepository.findOneBy({ id });
         if (!product) throw new BadRequestException(`no product found by id ${id}`);
         return product;
+    }
+
+    async findByCategory(category: string): Promise<Product[]> {
+
+        const products = await this.productsRepository
+            .find({
+                relations: {
+                    category: true
+                },
+                where: {
+                    category: {
+                        name: category
+                    }
+                }
+            });
+
+        return products;
     }
 
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
