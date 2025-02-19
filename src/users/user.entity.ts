@@ -1,6 +1,6 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserRole } from "../common/enums/userRole.enum";
-import { Cart } from "../carts/carts.entity";
+import { Cart } from "../carts/entities/carts.entity";
 
 
 @Entity()

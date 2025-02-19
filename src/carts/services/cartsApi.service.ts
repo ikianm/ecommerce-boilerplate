@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cart } from "../carts.entity";
+import { Cart } from "../entities/carts.entity";
 import { QueryRunner } from "typeorm";
 import { User } from "../../users/user.entity";
 
