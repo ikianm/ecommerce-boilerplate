@@ -25,7 +25,7 @@ export class CategoriesService {
         if (duplicateNameCategory) throw new BadRequestException(`category with name ${createCategoryDto.name} already exists`);
 
         const newCategory = new Category();
-        newCategory.name = createCategoryDto.name;
+        newCategory.name = createCategoryDto.name.replaceAll(' ', '-');
 
         return await this.categoriesRepository.save(newCategory);
     }
@@ -36,7 +36,7 @@ export class CategoriesService {
         if (duplicateNameCategory) throw new BadRequestException(`category with name ${updateCategoryDto.name} already exists`);
 
         const category = await this.findById(id);
-        category.name = updateCategoryDto.name;
+        category.name = updateCategoryDto.name.replaceAll(' ', '-');
 
         return await this.categoriesRepository.save(category);
 
