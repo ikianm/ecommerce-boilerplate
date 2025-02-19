@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserRole } from "../common/enums/userRole.enum";
+import { Cart } from "../carts/carts.entity";
 
 
 @Entity()
@@ -22,5 +23,8 @@ export class User {
 
     @Column({ nullable: true, default: null })
     refreshToken: string;
+
+    @OneToOne(() => Cart)
+    cart: Cart;
 
 }

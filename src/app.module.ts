@@ -10,6 +10,7 @@ import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { ProductsModule } from './products/product.module';
 import { CategoriesModule } from './categories/category.module';
+import { CartsModule } from './carts/carts.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { CategoriesModule } from './categories/category.module';
     AuthModule,
     UsersModule,
     ProductsModule,
-    CategoriesModule
+    CategoriesModule,
+    CartsModule
   ],
   controllers: [],
   providers: [
