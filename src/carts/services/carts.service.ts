@@ -1,7 +1,7 @@
-import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cart } from "../entities/carts.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { ProductsApiService } from "../../products/services/productApi.service";
 import { CartItem } from "../entities/cartItem.entity";
 
@@ -14,7 +14,8 @@ export class CartsService {
         private readonly cartsRepository: Repository<Cart>,
         @InjectRepository(CartItem)
         private readonly cartsItemRepository: Repository<CartItem>,
-        private readonly productsApiService: ProductsApiService
+        private readonly productsApiService: ProductsApiService,
+        private readonly dataSource: DataSource
     ) { }
 
     //FIXME - fix this since it broke after changing carts
@@ -75,14 +76,28 @@ export class CartsService {
     async removeCartItem(userId: number, productId: number): Promise<Cart> {
         const usersCart = await this.findUsersCart(userId);
 
-        const itemIndex = usersCart.items.findIndex(cartItem => cartItem.productId === productId);
-        if (itemIndex === -1) throw new BadRequestException('product is not in the cart');
+        const cartItemToRemove = usersCart.items.find(cartItem => cartItem.productId === productId);
+        if (!cartItemToRemove) throw new BadRequestException('product is not in the cart');
 
-        const [removedItem] = usersCart.items.splice(itemIndex, 1);
+        usersCart.totalPrice -= cartItemToRemove.quantity * cartItemToRemove.product.price;
+        usersCart.items = usersCart.items.filter(cartItem => cartItem.productId !== productId);
 
-        await this.cartsItemRepository.remove(removedItem);
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        return usersCart;
+        try {
+            await this.dataSource.manager.remove(cartItemToRemove);
+            const updatedCart = await this.dataSource.manager.save(usersCart);
+            await queryRunner.commitTransaction();
+            return updatedCart;
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw new InternalServerErrorException();
+        } finally {
+            await queryRunner.release();
+        }
+
     }
 
 }
