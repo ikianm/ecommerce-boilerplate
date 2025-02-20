@@ -18,7 +18,6 @@ export class CartsService {
         private readonly dataSource: DataSource
     ) { }
 
-    //FIXME - fix this since it broke after changing carts
     async findUsersCart(userId: number): Promise<Cart> {
         const usersCart = await this.cartsRepository.findOne({
             where: { userId },
@@ -41,22 +40,34 @@ export class CartsService {
         if (!product) throw new BadRequestException(`no product found by id ${productId}`);
         if (product.stockQuantity < 1) throw new ConflictException('product is out of stock');
 
-        const productInCart = usersCart.items.find(cartItem => cartItem.productId === productId);
+        const itemInCart = usersCart.items.find(cartItem => cartItem.productId === productId);
 
-        if (productInCart) { // product already in cart
-            productInCart.quantity += 1;
-            await this.cartsItemRepository.save(productInCart);
-        } else {
-            const newCartItem = new CartItem();
-            newCartItem.product = product;
-            newCartItem.quantity = 1;
-            await this.cartsItemRepository.save(newCartItem);
-            usersCart.items.push(newCartItem);
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            if (itemInCart) { // product already in cart
+                itemInCart.quantity += 1;
+                await queryRunner.manager.save(itemInCart)
+            } else {
+                const newCartItem = new CartItem();
+                newCartItem.product = product;
+                newCartItem.quantity = 1;
+                await queryRunner.manager.save(newCartItem);
+                usersCart.items.push(newCartItem);
+            }
+            usersCart.totalPrice += product.price;
+            const updatedUsersCart = await queryRunner.manager.save(usersCart);
+            return updatedUsersCart;
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw new InternalServerErrorException();
+        } finally {
+            await queryRunner.release();
         }
 
-        usersCart.totalPrice += product.price;
 
-        return await this.cartsRepository.save(usersCart);
     }
 
     async increaseCartItemQuantity(userId: number, productId: number): Promise<Cart> {
@@ -68,9 +79,22 @@ export class CartsService {
         cartItemProduct.quantity += 1;
         usersCart.totalPrice += cartItemProduct.product.price;
 
-        await this.cartsItemRepository.save(cartItemProduct);
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        return await this.cartsRepository.save(usersCart);
+        try {
+            await queryRunner.manager.save(cartItemProduct);
+            const updatedUsersCart = await queryRunner.manager.save(usersCart);
+            return updatedUsersCart;
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw new InternalServerErrorException();
+        } finally {
+            await queryRunner.release();
+        }
+
+
     }
 
     async removeCartItem(userId: number, productId: number): Promise<Cart> {
