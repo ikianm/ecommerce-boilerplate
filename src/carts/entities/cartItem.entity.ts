@@ -9,8 +9,11 @@ export class CartItem {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Cart, (cart) => cart.items, {onDelete: 'CASCADE'})
+    @ManyToOne(() => Cart, (cart) => cart.items, { onDelete: 'CASCADE' })
     cart: Cart;
+
+    @Column()
+    cartId: number;
 
     @ManyToOne(() => Product)
     product: Product;

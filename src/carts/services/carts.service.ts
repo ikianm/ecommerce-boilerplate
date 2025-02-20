@@ -49,16 +49,16 @@ export class CartsService {
         try {
             if (itemInCart) { // product already in cart
                 itemInCart.quantity += 1;
-                await queryRunner.manager.save(itemInCart)
+                await queryRunner.manager.save(CartItem, itemInCart)
             } else {
                 const newCartItem = new CartItem();
                 newCartItem.product = product;
                 newCartItem.quantity = 1;
-                await queryRunner.manager.save(newCartItem);
+                await queryRunner.manager.save(CartItem, newCartItem);
                 usersCart.items.push(newCartItem);
             }
             usersCart.totalPrice += product.price;
-            const updatedUsersCart = await queryRunner.manager.save(usersCart);
+            const updatedUsersCart = await queryRunner.manager.save(Cart, usersCart);
             return updatedUsersCart;
         } catch (err) {
             await queryRunner.rollbackTransaction();
@@ -66,8 +66,6 @@ export class CartsService {
         } finally {
             await queryRunner.release();
         }
-
-
     }
 
     async increaseCartItemQuantity(userId: number, productId: number): Promise<Cart> {
@@ -84,8 +82,8 @@ export class CartsService {
         await queryRunner.startTransaction();
 
         try {
-            await queryRunner.manager.save(cartItemProduct);
-            const updatedUsersCart = await queryRunner.manager.save(usersCart);
+            await queryRunner.manager.save(CartItem, cartItemProduct);
+            const updatedUsersCart = await queryRunner.manager.save(Cart, usersCart);
             return updatedUsersCart;
         } catch (err) {
             await queryRunner.rollbackTransaction();
@@ -93,8 +91,6 @@ export class CartsService {
         } finally {
             await queryRunner.release();
         }
-
-
     }
 
     async removeCartItem(userId: number, productId: number): Promise<Cart> {
@@ -111,8 +107,8 @@ export class CartsService {
         await queryRunner.startTransaction();
 
         try {
-            await this.dataSource.manager.remove(cartItemToRemove);
-            const updatedCart = await this.dataSource.manager.save(usersCart);
+            await this.dataSource.manager.remove(CartItem, cartItemToRemove);
+            const updatedCart = await this.dataSource.manager.save(Cart, usersCart);
             await queryRunner.commitTransaction();
             return updatedCart;
         } catch (err) {
@@ -121,7 +117,31 @@ export class CartsService {
         } finally {
             await queryRunner.release();
         }
+    }
 
+    async clear(userId: number): Promise<Cart> {
+        const usersCart = await this.findUsersCart(userId);
+
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        usersCart.items = [];
+        usersCart.totalPrice = 0;
+
+        try {
+            await queryRunner.manager.delete(CartItem, {
+                cartId: usersCart.id
+            });
+            const updatedUsersCart = await queryRunner.manager.save(usersCart);
+            await queryRunner.commitTransaction();
+            return updatedUsersCart;
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw new InternalServerErrorException();
+        } finally {
+            await queryRunner.release();
+        }
     }
 
 }

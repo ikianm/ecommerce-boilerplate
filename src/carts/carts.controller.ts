@@ -29,4 +29,9 @@ export class CartsController {
         return this.cartsService.removeCartItem(req.user!.id, parseInt(productId));
     }
 
+    @Delete()
+    clear(@Req() req: Request) {
+        return this.cartsService.clear(req.user!.id);
+    }
+
 }
