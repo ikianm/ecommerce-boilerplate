@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { AccessTokenGuard } from "../common/guards/accessToken.guard";
 import { CartsService } from "./services/carts.service";
 import { Request } from "express";
@@ -18,5 +18,11 @@ export class CartsController {
     addToCart(@Param('productId') productId: string, @Req() req: Request) {
         return this.cartsService.addToCart(req.user!.id, parseInt(productId));
     }
+
+    @Put(':productId')
+    increaseCartItemQuantity(@Param('productId') productId: string, @Req() req: Request) {
+        return this.cartsService.increaseCartItemQuantity(req.user!.id, parseInt(productId));
+    }
+
 
 }

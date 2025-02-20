@@ -31,7 +31,6 @@ export class CartsService {
         return usersCart;
     }
 
-    //TODO - if product is in card already, increase quantity, else add product to card
     async addToCart(userId: number, productId: number): Promise<Cart> {
         const [usersCart, product] = await Promise.all([
             this.findUsersCart(userId),
@@ -55,6 +54,20 @@ export class CartsService {
         }
 
         usersCart.totalPrice += product.price;
+
+        return await this.cartsRepository.save(usersCart);
+    }
+
+    async increaseCartItemQuantity(userId: number, productId: number): Promise<Cart> {
+        const usersCart = await this.findUsersCart(userId);
+
+        const cartItemProduct = usersCart.items.find(cartItem => cartItem.productId === productId);
+        if (!cartItemProduct) throw new BadRequestException('product is not in the cart');
+
+        cartItemProduct.quantity += 1;
+        usersCart.totalPrice += cartItemProduct.product.price;
+
+        await this.cartsItemRepository.save(cartItemProduct);
 
         return await this.cartsRepository.save(usersCart);
     }
