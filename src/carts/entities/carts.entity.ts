@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
 import { User } from "../../users/user.entity";
-import { Product } from "../../products/entities/product.entity";
 import { CartItem } from "./cartItem.entity";
 
 @Entity()
@@ -16,8 +15,8 @@ export class Cart {
     @Column()
     userId: number;
 
-    @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { onDelete: 'CASCADE' })
-    items: CartItem;
+    @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
+    items: CartItem[];
 
     @Column({ default: 0 })
     totalPrice: number;

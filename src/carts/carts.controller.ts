@@ -16,7 +16,7 @@ export class CartsController {
 
     @Post(':productId')
     addToCart(@Param('productId') productId: string, @Req() req: Request) {
-        //return this.cartsService.addToCart(req.user!.id, parseInt(productId));
+        return this.cartsService.addToCart(req.user!.id, parseInt(productId));
     }
 
 }
