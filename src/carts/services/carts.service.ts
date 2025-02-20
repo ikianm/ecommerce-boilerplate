@@ -12,8 +12,6 @@ export class CartsService {
     constructor(
         @InjectRepository(Cart)
         private readonly cartsRepository: Repository<Cart>,
-        @InjectRepository(CartItem)
-        private readonly cartsItemRepository: Repository<CartItem>,
         private readonly productsApiService: ProductsApiService,
         private readonly dataSource: DataSource
     ) { }
@@ -54,6 +52,7 @@ export class CartsService {
                 const newCartItem = new CartItem();
                 newCartItem.product = product;
                 newCartItem.quantity = 1;
+                newCartItem.cartId = usersCart.id;
                 await queryRunner.manager.save(CartItem, newCartItem);
                 usersCart.items.push(newCartItem);
             }
@@ -107,11 +106,12 @@ export class CartsService {
         await queryRunner.startTransaction();
 
         try {
-            await this.dataSource.manager.remove(CartItem, cartItemToRemove);
-            const updatedCart = await this.dataSource.manager.save(Cart, usersCart);
+            await queryRunner.manager.remove(CartItem, cartItemToRemove);
+            const updatedCart = await queryRunner.manager.save(Cart, usersCart);
             await queryRunner.commitTransaction();
             return updatedCart;
         } catch (err) {
+            console.log(err);
             await queryRunner.rollbackTransaction();
             throw new InternalServerErrorException();
         } finally {

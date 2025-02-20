@@ -26,12 +26,15 @@ export class CartsController {
 
     @Delete(':productId')
     removeCartItem(@Param('productId') productId: string, @Req() req: Request) {
+        console.log('removeCartItem triggered')
         return this.cartsService.removeCartItem(req.user!.id, parseInt(productId));
     }
 
     @Delete()
     clear(@Req() req: Request) {
+        console.log('clear triggered')
         return this.cartsService.clear(req.user!.id);
     }
+
 
 }
