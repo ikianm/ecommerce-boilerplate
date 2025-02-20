@@ -72,4 +72,17 @@ export class CartsService {
         return await this.cartsRepository.save(usersCart);
     }
 
+    async removeCartItem(userId: number, productId: number): Promise<Cart> {
+        const usersCart = await this.findUsersCart(userId);
+
+        const itemIndex = usersCart.items.findIndex(cartItem => cartItem.productId === productId);
+        if (itemIndex === -1) throw new BadRequestException('product is not in the cart');
+
+        const [removedItem] = usersCart.items.splice(itemIndex, 1);
+
+        await this.cartsItemRepository.remove(removedItem);
+
+        return usersCart;
+    }
+
 }

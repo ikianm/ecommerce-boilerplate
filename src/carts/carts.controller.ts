@@ -24,5 +24,9 @@ export class CartsController {
         return this.cartsService.increaseCartItemQuantity(req.user!.id, parseInt(productId));
     }
 
+    @Delete(':productId')
+    removeCartItem(@Param('productId') productId: string, @Req() req: Request) {
+        return this.cartsService.removeCartItem(req.user!.id, parseInt(productId));
+    }
 
 }
