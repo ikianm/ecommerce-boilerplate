@@ -1,6 +1,7 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserRole } from "../common/enums/userRole.enum";
-import { Cart } from "../carts/entities/carts.entity";
+import { Cart } from "../carts/entities/cart.entity";
+import { Exclude } from "class-transformer";
 
 
 @Entity()
@@ -9,16 +10,19 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false, unique: true })
+    @Column({ unique: true })
     email: string;
 
-    @Column({ nullable: false })
+    @Column()
     name: string;
 
-    @Column({ nullable: false })
+    @Column()
     password: string;
 
-    @Column({ nullable: false, default: UserRole.USER })
+    @Column({ nullable: true })
+    address: string;
+
+    @Column({ default: UserRole.USER })
     role: UserRole;
 
     @Column({ nullable: true, default: null })

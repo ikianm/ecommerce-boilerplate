@@ -60,7 +60,6 @@ export class ProductsService {
         return products;
     }
 
-    //TODO - if product exists, increase quantity, else, create new one
     async create(createProductDto: CreateProductDto, images: Express.Multer.File[]): Promise<any> {
         const { name, description, price, stockQuantity, categoryId } = createProductDto;
 
@@ -132,7 +131,6 @@ export class ProductsService {
         const product = await this.findById(id);
         return await this.productsRepository.remove(product);
     }
-
 
 }
 

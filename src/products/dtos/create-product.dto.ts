@@ -14,7 +14,7 @@ export class CreateProductDto {
     description: string;
 
     @IsNumberString()
-    // add Type()
+    //TODO - add Type()
     price: string;
 
     @IsNumberString()

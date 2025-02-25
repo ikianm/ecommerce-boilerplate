@@ -11,6 +11,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 import { ProductsModule } from './products/product.module';
 import { CategoriesModule } from './categories/category.module';
 import { CartsModule } from './carts/carts.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -36,12 +37,12 @@ import { CartsModule } from './carts/carts.module';
       },
       inject: [ConfigService]
     }),
-
     AuthModule,
     UsersModule,
     ProductsModule,
     CategoriesModule,
-    CartsModule
+    CartsModule,
+    OrdersModule
   ],
   controllers: [],
   providers: [
