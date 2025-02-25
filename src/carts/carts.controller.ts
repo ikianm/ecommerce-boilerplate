@@ -32,7 +32,6 @@ export class CartsController {
 
     @Delete()
     clear(@Req() req: Request) {
-        console.log('clear triggered')
         return this.cartsService.clear(req.user!.id);
     }
 

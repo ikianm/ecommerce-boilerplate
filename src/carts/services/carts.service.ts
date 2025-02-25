@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Cart } from "../entities/carts.entity";
+import { Cart } from "../entities/cart.entity";
 import { DataSource, Repository } from "typeorm";
 import { ProductsApiService } from "../../products/services/productApi.service";
 import { CartItem } from "../entities/cartItem.entity";
@@ -47,19 +47,21 @@ export class CartsService {
         try {
             if (itemInCart) { // product already in cart
                 itemInCart.quantity += 1;
-                await queryRunner.manager.save(CartItem, itemInCart)
+                await queryRunner.manager.save(CartItem, itemInCart);
             } else {
                 const newCartItem = new CartItem();
                 newCartItem.product = product;
                 newCartItem.quantity = 1;
-                newCartItem.cartId = usersCart.id;
                 await queryRunner.manager.save(CartItem, newCartItem);
                 usersCart.items.push(newCartItem);
             }
             usersCart.totalPrice += product.price;
-            const updatedUsersCart = await queryRunner.manager.save(Cart, usersCart);
-            return updatedUsersCart;
+            const updatedCart = await queryRunner.manager.save(Cart, usersCart);
+            await queryRunner.commitTransaction();
+            return updatedCart;
+
         } catch (err) {
+            console.log(err)
             await queryRunner.rollbackTransaction();
             throw new InternalServerErrorException();
         } finally {
